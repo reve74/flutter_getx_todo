@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_todo/controller/task_controller.dart';
+import 'package:flutter_todo/models/task.dart';
 import 'package:flutter_todo/ui/theme.dart';
 import 'package:flutter_todo/ui/widgets/buttons.dart';
 import 'package:flutter_todo/ui/widgets/input_field.dart';
@@ -15,6 +17,7 @@ class AddTaskPage extends StatefulWidget {
 }
 
 class _AddTaskPageState extends State<AddTaskPage> {
+  final TaskController _taskController = Get.put(TaskController());
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
 
@@ -182,9 +185,11 @@ class _AddTaskPageState extends State<AddTaskPage> {
     );
   }
 
+  // 유효성 검사
   _validateDate() {
     if (_titleController.text.isNotEmpty && _noteController.text.isNotEmpty) {
       // add to database
+      _addTaskToDb();
       Get.back();
     } else if (_titleController.text.isEmpty || _noteController.text.isEmpty) {
       Get.snackbar(
@@ -198,6 +203,23 @@ class _AddTaskPageState extends State<AddTaskPage> {
         ),
       );
     }
+  }
+
+  _addTaskToDb() async{
+    int value = await _taskController.addTask(
+        task: Task(
+          note: _noteController.text,
+          title: _titleController.text,
+          date: DateFormat.yMd().format(_selectedDate),
+          startTime: _startTime,
+          endTime: _endTime,
+          remind: _selectedRemind,
+          repeat: _selectRepeat,
+          color: _selectedColor,
+          isCompleted: 0,
+        ),
+    );
+    print("My id is "+"$value");
   }
 
   _colorPallete() {
